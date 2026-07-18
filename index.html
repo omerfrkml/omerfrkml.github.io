@@ -281,13 +281,84 @@
 
     /* ── RESPONSIVE ──────────────────── */
     @media(max-width:768px){
-      nav { padding:0.85rem 1.25rem; }
-      .nav-name { display:none; }
+      /* Nav — 2 satıra al */
+      nav {
+        flex-direction:column;
+        align-items:center;
+        gap:0.6rem;
+        padding:0.85rem 1rem;
+      }
+      .nav-brand { justify-content:center; }
+      .nav-name { display:block !important; }
+      .nav-links {
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:0.25rem;
+        width:100%;
+      }
+      .nav-links button {
+        padding:0.35rem 0.65rem;
+        font-size:0.78rem;
+      }
+
+      /* Hero */
+      .hero { padding:7rem 1.25rem 4rem; }
+      .hero-actions {
+        flex-direction:column;
+        align-items:center;
+        width:100%;
+        gap:0.75rem;
+      }
+      .appstore-badge { justify-content:center; width:100%; max-width:280px; }
+      .hero-actions .btn { width:100%; max-width:280px; justify-content:center; }
+
+      /* Section wrapper */
+      .sw { padding:3.5rem 1.25rem; }
+
+      /* Features */
       .features-grid { grid-template-columns:1fr; }
+
+      /* How-to-play — inline grid override */
+      #howto-sec {
+        grid-template-columns:1fr !important;
+        gap:2.5rem !important;
+      }
+      .demo-wrap {
+        padding:1.5rem;
+        width:100%;
+        max-width:100%;
+        justify-content:center;
+      }
+      .snake-grid { width:180px; height:180px; }
+
+      /* Info grid */
       .info-grid { grid-template-columns:1fr; }
+
+      /* Support */
       .support-grid { grid-template-columns:1fr; }
-      .demo-wrap { padding:1.5rem; }
-      .snake-grid { width:168px; height:168px; }
+      .support-hero { padding:6rem 1.25rem 2rem; }
+      .faq-list { padding:0 1.25rem 3rem; }
+
+      /* Prose (privacy) */
+      .prose { padding:6rem 1.25rem 3rem; }
+
+      /* Contact card */
+      .contact-card { padding:2.5rem 1.25rem; }
+      .contact-links { flex-direction:column; align-items:center; }
+      .contact-links .btn { width:100%; max-width:280px; justify-content:center; }
+
+      /* Footer */
+      footer {
+        flex-direction:column;
+        text-align:center;
+        gap:1rem;
+        padding:1.75rem 1.25rem;
+      }
+      .footer-links {
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:1rem;
+      }
     }
   </style>
 </head>
