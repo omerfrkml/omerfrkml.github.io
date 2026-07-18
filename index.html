@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yılans — Klasik Yılan Oyunu</title>
+  <meta name="description" content="Yılans, klasik yılan oyununun modern ve akıcı iOS versiyonu. KOF Studio tarafından geliştirildi." />
+  <meta property="og:title" content="Yılans — Klasik Yılan Oyunu" />
+  <meta property="og:description" content="Yılans, klasik yılan oyununun modern ve akıcı iOS versiyonu." />
+  <meta property="og:url" content="https://omerfrkml.github.io/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #07070a;
+      --bg2:      #0d0d14;
+      --bg3:      #111118;
+      --border:   rgba(255,255,255,0.07);
+      --green:    #00ffaa;
+      --gdim:     rgba(0,255,170,0.12);
+      --gglow:    rgba(0,255,170,0.35);
+      --red:      #ff3366;
+      --text:     #f0f0f0;
+      --tdim:     rgba(240,240,240,0.42);
+      --tmid:     rgba(240,240,240,0.68);
+      --r:        20px;
+      --f:        'Outfit', sans-serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:var(--f); line-height:1.6; overflow-x:hidden; }
+
+    /* ── PAGE SYSTEM ─────────────────── */
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ── NAV ─────────────────────────── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem 2.5rem;
+      background:rgba(7,7,10,0.75);
+      backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-brand {
+      display:flex; align-items:center; gap:0.6rem;
+      text-decoration:none; color:var(--text);
+    }
+    .nav-snake { font-size:1.3rem; }
+    .nav-name { font-size:1rem; font-weight:800; letter-spacing:-0.01em; }
+    .nav-name span { color:var(--green); }
+    .nav-links { display:flex; gap:0.25rem; }
+    .nav-links button {
+      background:transparent; border:none; cursor:pointer;
+      color:var(--tdim); font-family:var(--f); font-size:0.875rem; font-weight:500;
+      padding:0.45rem 1rem; border-radius:10px;
+      transition:background 0.2s, color 0.2s;
+    }
+    .nav-links button:hover,
+    .nav-links button.active { background:rgba(255,255,255,0.06); color:var(--text); }
+    .nav-cta {
+      background:var(--green); color:#000 !important;
+      font-weight:700 !important;
+      border-radius:10px !important;
+    }
+    .nav-cta:hover { box-shadow:0 4px 20px var(--gglow); background:var(--green) !important; }
+
+    /* ── HERO ────────────────────────── */
+    .hero {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      justify-content:center; align-items:center;
+      text-align:center; padding:8rem 2rem 5rem;
+      position:relative; overflow:hidden;
+    }
+    .hero-glow {
+      position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% -5%, rgba(0,255,170,0.1) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 80% 90%, rgba(255,51,102,0.06) 0%, transparent 60%);
+    }
+    .hero-icon {
+      width:96px; height:96px;
+      background:linear-gradient(145deg, #102010, #061006);
+      border:1px solid rgba(0,255,170,0.25);
+      border-radius:22px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.8rem;
+      margin-bottom:2rem;
+      box-shadow:0 0 40px rgba(0,255,170,0.12);
+      position:relative; z-index:1;
+    }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:var(--gdim);
+      border:1px solid rgba(0,255,170,0.22);
+      border-radius:100px;
+      padding:0.3rem 1rem;
+      font-size:0.78rem; font-weight:600;
+      color:var(--green); letter-spacing:0.06em; text-transform:uppercase;
+      margin-bottom:1.75rem; position:relative; z-index:1;
+    }
+    .hero-badge::before {
+      content:''; width:6px; height:6px;
+      background:var(--green); border-radius:50%;
+      animation:dot 2s infinite;
+    }
+    @keyframes dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.75)} }
+
+    .hero h1 {
+      font-size:clamp(4rem,10vw,8rem);
+      font-weight:900; letter-spacing:-0.04em; line-height:1;
+      margin-bottom:1.25rem; position:relative; z-index:1;
+      background:linear-gradient(160deg, #fff 20%, var(--green) 80%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .hero-sub {
+      font-size:clamp(1rem,2vw,1.15rem);
+      color:var(--tmid); max-width:480px; margin-bottom:2.75rem;
+      position:relative; z-index:1; font-weight:400;
+    }
+    .hero-actions {
+      display:flex; gap:0.75rem; flex-wrap:wrap;
+      justify-content:center; position:relative; z-index:1;
+    }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      font-family:var(--f); font-weight:700; font-size:0.95rem;
+      padding:0.85rem 1.75rem; border-radius:12px;
+      text-decoration:none; border:none; cursor:pointer;
+      transition:transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    }
+    .btn-green { background:var(--green); color:#000; }
+    .btn-green:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--gglow); }
+    .btn-outline { background:transparent; color:var(--tmid); border:1px solid var(--border); }
+    .btn-outline:hover { border-color:rgba(255,255,255,0.18); color:var(--text); }
+    .btn-sm { padding:0.55rem 1.1rem; font-size:0.85rem; border-radius:9px; }
+
+    /* store badge */
+    .appstore-badge {
+      display:inline-flex; align-items:center; gap:0.75rem;
+      background:#111; border:1px solid rgba(255,255,255,0.12);
+      border-radius:14px; padding:0.7rem 1.4rem;
+      color:var(--text); text-decoration:none;
+      transition:border-color 0.2s, transform 0.2s;
+    }
+    .appstore-badge:hover { border-color:rgba(255,255,255,0.28); transform:translateY(-2px); }
+    .appstore-badge svg { width:22px; height:22px; fill:currentColor; }
+    .appstore-badge-text { text-align:left; }
+    .appstore-badge-label { font-size:0.68rem; color:var(--tdim); letter-spacing:0.04em; text-transform:uppercase; display:block; }
+    .appstore-badge-store { font-size:1rem; font-weight:700; display:block; }
+
+    /* ── SECTION WRAPPER ─────────────── */
+    .sw { max-width:1060px; margin:0 auto; padding:5.5rem 2rem; }
+    .sl { font-size:0.72rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--green); display:block; margin-bottom:0.75rem; }
+    .st { font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; letter-spacing:-0.02em; line-height:1.15; margin-bottom:0.75rem; }
+    .ss { color:var(--tmid); font-size:1rem; max-width:500px; margin-bottom:3rem; }
+    hr.div { border:none; border-top:1px solid var(--border); }
+
+    /* ── FEATURES ────────────────────── */
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    .feat {
+      background:var(--bg2); border:1px solid var(--border); border-radius:var(--r);
+      padding:2rem; transition:border-color 0.25s, transform 0.25s;
+    }
+    .feat:hover { border-color:rgba(0,255,170,0.18); transform:translateY(-3px); }
+    .feat-icon { font-size:2rem; margin-bottom:1rem; display:block; }
+    .feat h3 { font-size:1rem; font-weight:700; margin-bottom:0.5rem; }
+    .feat p { color:var(--tdim); font-size:0.875rem; line-height:1.6; }
+
+    /* ── MINI SNAKE DEMO ─────────────── */
+    .demo-wrap {
+      background:linear-gradient(145deg, #0a1a0a, #060d06);
+      border:1px solid rgba(0,255,170,0.12);
+      border-radius:var(--r);
+      display:flex; align-items:center; justify-content:center;
+      padding:3rem; position:relative; overflow:hidden;
+    }
+    .demo-glow {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0,255,170,0.08), transparent);
+      pointer-events:none;
+    }
+    .snake-grid {
+      display:grid;
+      grid-template-columns:repeat(14,1fr);
+      grid-template-rows:repeat(14,1fr);
+      gap:2px; width:224px; height:224px; position:relative; z-index:1;
+    }
+    .cell { border-radius:2px; background:rgba(255,255,255,0.03); }
+    .cell.s { background:var(--green); border-radius:3px; }
+    .cell.h { background:#fff; box-shadow:0 0 10px var(--green); border-radius:3px; }
+    .cell.f { background:var(--red); border-radius:50%; box-shadow:0 0 8px rgba(255,51,102,0.5); }
+
+    /* ── HOW TO PLAY ─────────────────── */
+    .steps { display:flex; flex-direction:column; gap:1rem; }
+    .step {
+      display:flex; align-items:flex-start; gap:1.25rem;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem;
+      transition:border-color 0.2s;
+    }
+    .step:hover { border-color:rgba(0,255,170,0.15); }
+    .step-num {
+      flex-shrink:0; width:36px; height:36px;
+      background:var(--gdim); border:1px solid rgba(0,255,170,0.2);
+      border-radius:9px; display:flex; align-items:center; justify-content:center;
+      font-size:0.85rem; font-weight:800; color:var(--green);
+    }
+    .step h4 { font-size:0.95rem; font-weight:700; margin-bottom:0.25rem; }
+    .step p { color:var(--tdim); font-size:0.875rem; }
+
+    /* ── INFO BOXES ──────────────────── */
+    .info-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; }
+    .info-box {
+      background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:2rem;
+    }
+    .info-box h3 { font-size:1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+    .info-box p, .info-box li { color:var(--tdim); font-size:0.875rem; line-height:1.7; }
+    .info-box ul { padding-left:1.25rem; }
+    .info-box li { margin-bottom:0.3rem; }
+
+    /* ── PRIVACY PAGE ────────────────── */
+    .prose { max-width:720px; margin:0 auto; padding:7rem 2rem 5rem; }
+    .prose h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:900; letter-spacing:-0.03em; margin-bottom:0.5rem;
+      background:linear-gradient(135deg,#fff 30%,var(--green) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .prose .meta { color:var(--tdim); font-size:0.85rem; margin-bottom:3rem; }
+    .prose h2 { font-size:1.15rem; font-weight:700; margin:2.5rem 0 0.75rem;
+      padding-bottom:0.5rem; border-bottom:1px solid var(--border); }
+    .prose p { color:var(--tmid); font-size:0.95rem; margin-bottom:1rem; line-height:1.8; }
+    .prose ul { padding-left:1.4rem; margin-bottom:1rem; }
+    .prose li { color:var(--tmid); font-size:0.95rem; margin-bottom:0.5rem; line-height:1.7; }
+    .prose a { color:var(--green); text-decoration:none; }
+    .prose a:hover { text-decoration:underline; }
+    .prose strong { color:var(--text); font-weight:700; }
+    .prose-footer { margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); text-align:center; color:var(--tdim); font-size:0.82rem; }
+
+    /* ── SUPPORT PAGE ────────────────── */
+    .support-hero { padding:7rem 2rem 3rem; text-align:center; }
+    .support-hero h1 { font-size:clamp(2rem,5vw,3rem); font-weight:900; letter-spacing:-0.02em; margin-bottom:0.75rem; }
+    .support-hero p { color:var(--tmid); max-width:480px; margin:0 auto 2.5rem; }
+    .support-grid { max-width:900px; margin:0 auto; padding:2rem; display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; }
+    .support-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:2rem;
+      transition:border-color 0.25s, transform 0.25s;
+    }
+    .support-card:hover { border-color:rgba(0,255,170,0.18); transform:translateY(-3px); }
+    .support-card .icon { font-size:2rem; margin-bottom:1rem; display:block; }
+    .support-card h3 { font-size:1rem; font-weight:700; margin-bottom:0.5rem; }
+    .support-card p { color:var(--tdim); font-size:0.875rem; line-height:1.6; margin-bottom:1.25rem; }
+    .faq-list { max-width:720px; margin:0 auto; padding:0 2rem 5rem; }
+    .faq-item {
+      border-bottom:1px solid var(--border); padding:1.5rem 0; cursor:pointer;
+    }
+    .faq-q {
+      font-size:0.95rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+    }
+    .faq-q .arrow { color:var(--tdim); transition:transform 0.2s; flex-shrink:0; }
+    .faq-item.open .faq-q .arrow { transform:rotate(180deg); color:var(--green); }
+    .faq-a { color:var(--tdim); font-size:0.875rem; line-height:1.7; max-height:0; overflow:hidden; transition:max-height 0.3s ease, margin-top 0.3s ease; }
+    .faq-item.open .faq-a { max-height:300px; margin-top:0.75rem; }
+
+    /* ── FOOTER ──────────────────────── */
+    footer {
+      border-top:1px solid var(--border);
+      padding:2rem 2.5rem;
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+      color:var(--tdim); font-size:0.82rem;
+    }
+    footer a { color:var(--tdim); text-decoration:none; }
+    footer a:hover { color:var(--text); }
+    .footer-links { display:flex; gap:1.5rem; }
+
+    /* ── SCROLL FADE ─────────────────── */
+    .fade-in { opacity:0; transform:translateY(18px); transition:opacity 0.55s ease, transform 0.55s ease; }
+    .fade-in.visible { opacity:1; transform:none; }
+
+    /* ── RESPONSIVE ──────────────────── */
+    @media(max-width:768px){
+      nav { padding:0.85rem 1.25rem; }
+      .nav-name { display:none; }
+      .features-grid { grid-template-columns:1fr; }
+      .info-grid { grid-template-columns:1fr; }
+      .support-grid { grid-template-columns:1fr; }
+      .demo-wrap { padding:1.5rem; }
+      .snake-grid { width:168px; height:168px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────── -->
+<nav>
+  <a class="nav-brand" href="#" onclick="showPage('home')">
+    <span class="nav-snake">🐍</span>
+    <span class="nav-name">Yılans<span>.</span></span>
+  </a>
+  <div class="nav-links">
+    <button id="nav-home"    class="active"  onclick="showPage('home')">Ana Sayfa</button>
+    <button id="nav-privacy"               onclick="showPage('privacy')">Gizlilik</button>
+    <button id="nav-support"               onclick="showPage('support')">Destek</button>
+    <button class="nav-cta"               onclick="window.open('https://apps.apple.com/app/yilans','_blank')">App Store ↗</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  HOME PAGE                                -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-icon">🐍</div>
+    <div class="hero-badge">iOS için ücretsiz</div>
+    <h1>Yılans</h1>
+    <p class="hero-sub">Klasik yılan oyununun modern, akıcı ve bağımlılık yapan iOS versiyonu. Yeniden başla, rekorunu kır.</p>
+    <div class="hero-actions">
+      <a href="https://apps.apple.com/app/yilans" target="_blank" rel="noopener" class="appstore-badge" id="hero-appstore">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div class="appstore-badge-text">
+          <span class="appstore-badge-label">Şimdi İndir</span>
+          <span class="appstore-badge-store">App Store</span>
+        </div>
+      </a>
+      <button class="btn btn-outline" onclick="document.getElementById('features-sec').scrollIntoView({behavior:'smooth'})">Daha Fazla ↓</button>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="sw" id="features-sec">
+    <span class="sl">Özellikler</span>
+    <h2 class="st">Neden Yılans?</h2>
+    <p class="ss">Sade görünüm, derin oynanış. Her detay düşünülmüş.</p>
+    <div class="features-grid">
+      <div class="feat fade-in">
+        <span class="feat-icon">⚡</span>
+        <h3>60fps Akıcılık</h3>
+        <p>React Native Reanimated ile desteklenen oyun motoru, her hareketi pürüzsüz hissettirir.</p>
+      </div>
+      <div class="feat fade-in">
+        <span class="feat-icon">🎨</span>
+        <h3>Kişiselleştirme</h3>
+        <p>Kendi yılan avatarını ve yem görselini galerinden seç, oyunu kendine özel yap.</p>
+      </div>
+      <div class="feat fade-in">
+        <span class="feat-icon">🌑</span>
+        <h3>Dark Mode Native</h3>
+        <p>Göz yormayan tam karanlık arayüz — hem retro hem modern estetik bir arada.</p>
+      </div>
+      <div class="feat fade-in">
+        <span class="feat-icon">🏆</span>
+        <h3>Skor Takibi</h3>
+        <p>Anlık skor ve en yüksek rekor kaydı. Her oyunda biraz daha ilerle.</p>
+      </div>
+      <div class="feat fade-in">
+        <span class="feat-icon">📵</span>
+        <h3>Kayıt Gerektirmez</h3>
+        <p>Hesap açmana gerek yok. Uygula indir, oyna — hepsi bu.</p>
+      </div>
+      <div class="feat fade-in">
+        <span class="feat-icon">🆓</span>
+        <h3>Ücretsiz</h3>
+        <p>Tamamen ücretsiz oyna. Uygulama Google AdMob ile desteklenmektedir.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div" />
+
+  <!-- DEMO + HOW TO PLAY -->
+  <div class="sw" style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center" id="howto-sec">
+    <div>
+      <span class="sl">Nasıl Oynanır</span>
+      <h2 class="st" style="margin-bottom:2rem">Basit ama bağımlılık yapan</h2>
+      <div class="steps">
+        <div class="step fade-in">
+          <div class="step-num">1</div>
+          <div><h4>Yönlendir</h4><p>Yılanını parmağınla kaydırarak ya da ekran düğmeleriyle yönlendir.</p></div>
+        </div>
+        <div class="step fade-in">
+          <div class="step-num">2</div>
+          <div><h4>Yem Ye</h4><p>Her yediğin yemde yılanın büyür ve skorun artar.</p></div>
+        </div>
+        <div class="step fade-in">
+          <div class="step-num">3</div>
+          <div><h4>Duvara Çarpma</h4><p>Kenara ya da kendine çarparsan oyun biter — başa dön ve rekoru kır!</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-wrap fade-in">
+      <div class="demo-glow"></div>
+      <div class="snake-grid" id="snake-grid"></div>
+    </div>
+  </div>
+
+  <hr class="div" />
+
+  <!-- APP INFO -->
+  <div class="sw">
+    <span class="sl">Uygulama Bilgileri</span>
+    <h2 class="st">Teknik Detaylar</h2>
+    <div class="info-grid">
+      <div class="info-box fade-in">
+        <h3>📱 Platform</h3>
+        <ul>
+          <li>iOS (iPhone)</li>
+          <li>Sürüm: 1.1.1</li>
+          <li>Bundle ID: com.yilans.game</li>
+          <li>Tablet desteği: Hayır</li>
+        </ul>
+      </div>
+      <div class="info-box fade-in">
+        <h3>🛠 Teknoloji</h3>
+        <ul>
+          <li>React Native + Expo</li>
+          <li>React Native Reanimated</li>
+          <li>Google AdMob</li>
+          <li>Expo Router</li>
+        </ul>
+      </div>
+      <div class="info-box fade-in">
+        <h3>🔒 Gizlilik</h3>
+        <ul>
+          <li>Kişisel veri toplanmaz</li>
+          <li>Sunucuya görsel yüklenmez</li>
+          <li>Hesap açmak gerekmez</li>
+          <li>AdMob ile reklam gösterimi</li>
+        </ul>
+      </div>
+      <div class="info-box fade-in">
+        <h3>🏢 Geliştirici</h3>
+        <ul>
+          <li>KOF Studio</li>
+          <li>Ömer Faruk Kamil</li>
+          <li><a href="mailto:omerfrkml@gmail.com" style="color:var(--green)">omerfrkml@gmail.com</a></li>
+          <li>© 2026 KOF Studio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center;padding:4rem 2rem 6rem">
+    <p style="color:var(--tdim);font-size:0.85rem;margin-bottom:1.25rem;letter-spacing:0.05em;text-transform:uppercase;font-weight:600">Hemen İndir</p>
+    <a href="https://apps.apple.com/app/yilans" target="_blank" rel="noopener" class="appstore-badge" id="cta-appstore">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="appstore-badge-text">
+        <span class="appstore-badge-label">Şimdi İndir</span>
+        <span class="appstore-badge-store">App Store</span>
+      </div>
+    </a>
+  </div>
+
+</div><!-- /page-home -->
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  PRIVACY PAGE                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-privacy">
+  <div class="prose">
+    <h1>Gizlilik Politikası</h1>
+    <p class="meta">🐍 Yılans &nbsp;·&nbsp; Son güncelleme: Temmuz 2026 &nbsp;·&nbsp; KOF Studio</p>
+
+    <p>Yılans uygulamasını kullandığınız için teşekkür ederiz. Bu Gizlilik Politikası, <strong>KOF Studio</strong> tarafından geliştirilen Yılans mobil uygulamasının kullanıcı verilerini nasıl ele aldığını açıklamaktadır.</p>
+
+    <h2>1. Kimlik Bilgisi Toplanmaz</h2>
+    <p>Yılans, kullanıcılardan herhangi bir hesap oluşturmasını veya kişisel bilgi girmesini <strong>gerektirmez</strong>. Uygulama şu verileri <strong>toplamaz ve saklamaz</strong>:</p>
+    <ul>
+      <li>Ad, soyad veya kullanıcı adı</li>
+      <li>E-posta adresi veya telefon numarası</li>
+      <li>Konum bilgisi</li>
+      <li>Ödeme veya finansal bilgiler</li>
+    </ul>
+
+    <h2>2. Yerel Depolama</h2>
+    <p>Oyun sırasında oluşan veriler (en yüksek skor, ayarlar, özel avatar/yem görselleri) yalnızca <strong>cihazınızda yerel olarak</strong> saklanır. Bu veriler sunucularımıza gönderilmez veya üçüncü taraflarla paylaşılmaz.</p>
+
+    <h2>3. Kamera ve Galeri İzni</h2>
+    <p>Uygulama, yılan avatarı veya yem görseli özelleştirmek için kamera ya da galeri erişimi <strong>talep edebilir</strong>. Bu izin:</p>
+    <ul>
+      <li>Yalnızca görsel seçimi için kullanılır.</li>
+      <li>Seçilen görseller cihazınızda yerel olarak işlenir, sunucuya yüklenmez.</li>
+      <li>İzni dilediğiniz zaman cihaz ayarlarından geri alabilirsiniz.</li>
+    </ul>
+
+    <h2>4. Ses Kaydı İzni</h2>
+    <p>Uygulama belirli ses efektleri veya özellikler için ses kaydı izni talep edebilir. Bu izin oyun içi ses deneyimine yönelik olup, ses kayıtları sunucuya iletilmez.</p>
+
+    <h2>5. Reklamlar — Google AdMob</h2>
+    <p>Uygulamanın ücretsiz sunulabilmesi için <strong>Google AdMob</strong> reklam ağı entegrasyonu bulunmaktadır. AdMob;</p>
+    <ul>
+      <li>Kişiselleştirilmiş veya kişiselleştirilmemiş reklamlar gösterebilir.</li>
+      <li>IDFA (Advertising Identifier) gibi cihaz tanımlayıcılarına erişebilir.</li>
+      <li>Kendi gizlilik politikasına tabi veriler toplar.</li>
+    </ul>
+    <p>Google'ın gizlilik politikasına buradan ulaşabilirsiniz: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></p>
+    <p>iOS kullanıcıları, ATT (App Tracking Transparency) çerçevesi kapsamında reklam izleme tercihlerini cihaz ayarlarından yönetebilir.</p>
+
+    <h2>6. Çocukların Gizliliği</h2>
+    <p>Yılans, 13 yaşın altındaki çocuklardan bilerek kişisel veri toplamaz. Uygulamanın genel kitleye yönelik tasarlandığını ve verilerini toplamadığını hatırlatırız.</p>
+
+    <h2>7. Güvenlik</h2>
+    <p>Cihazınızda yerel olarak saklanan tüm veriler, işletim sisteminizin standart güvenli depolama mekanizmaları aracılığıyla korunmaktadır.</p>
+
+    <h2>8. Bu Politikadaki Değişiklikler</h2>
+    <p>Gizlilik politikamızda değişiklik yapılması durumunda bu sayfayı güncelleyecek ve son güncelleme tarihini değiştireceğiz. Güncellemeler yayınlandıktan sonra uygulamayı kullanmaya devam etmeniz değişiklikleri kabul ettiğiniz anlamına gelir.</p>
+
+    <h2>9. İletişim</h2>
+    <p>Bu gizlilik politikasıyla ilgili soru, öneri veya talepleriniz için bizimle iletişime geçebilirsiniz:</p>
+    <p>
+      <strong>Geliştirici:</strong> Ömer Faruk Kamil<br />
+      <strong>Stüdyo:</strong> KOF Studio<br />
+      <strong>E-posta:</strong> <a href="mailto:omerfrkml@gmail.com">omerfrkml@gmail.com</a>
+    </p>
+
+    <div class="prose-footer">
+      © 2026 KOF Studio · Ömer Faruk Kamil &nbsp;|&nbsp; Yılans v1.1.1
+    </div>
+  </div>
+</div><!-- /page-privacy -->
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SUPPORT PAGE                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-support">
+
+  <div class="support-hero">
+    <h1>Destek</h1>
+    <p>Yılans ile ilgili bir sorun mu var? Sana yardımcı olmaktan memnuniyet duyarız.</p>
+    <a href="mailto:omerfrkml@gmail.com" class="btn btn-green btn-sm" id="support-email-btn">✉️ E-posta Gönder</a>
+  </div>
+
+  <div class="support-grid">
+    <div class="support-card">
+      <span class="icon">📧</span>
+      <h3>E-posta Desteği</h3>
+      <p>Herhangi bir sorun veya önerin için doğrudan bize yaz. En kısa sürede yanıtlarız.</p>
+      <a href="mailto:omerfrkml@gmail.com" class="btn btn-outline btn-sm" id="support-card-email">omerfrkml@gmail.com</a>
+    </div>
+    <div class="support-card">
+      <span class="icon">🐛</span>
+      <h3>Hata Bildirimi</h3>
+      <p>Bir hata ile mi karşılaştın? Cihaz modelini ve ne olduğunu anlatan kısa bir mesaj yeter.</p>
+      <a href="mailto:omerfrkml@gmail.com?subject=Yılans Hata Bildirimi" class="btn btn-outline btn-sm" id="support-bug-btn">Hata Bildir</a>
+    </div>
+    <div class="support-card">
+      <span class="icon">💡</span>
+      <h3>Öneri Gönder</h3>
+      <p>Oyuna eklemek istediğin bir özellik mi var? Fikirlerine açığız.</p>
+      <a href="mailto:omerfrkml@gmail.com?subject=Yılans Öneri" class="btn btn-outline btn-sm" id="support-suggest-btn">Öneri Gönder</a>
+    </div>
+    <div class="support-card">
+      <span class="icon">⭐</span>
+      <h3>Değerlendirme</h3>
+      <p>Yılans'ı sevdiysen App Store'da bir yorum bırakmayı unutma, bu bizi çok motive eder!</p>
+      <a href="https://apps.apple.com/app/yilans" target="_blank" rel="noopener" class="btn btn-outline btn-sm" id="support-review-btn">App Store'da Değerlendir</a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-list">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:-0.01em">Sık Sorulan Sorular</h2>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Yılans ücretli mi?<span class="arrow">↓</span></div>
+      <div class="faq-a">Hayır, Yılans tamamen ücretsizdir. Uygulama içi reklam gösterimi (Google AdMob) aracılığıyla gelir elde edilmektedir. Herhangi bir ücretli içerik veya abonelik bulunmamaktadır.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Verilerimi saklıyor musunuz?<span class="arrow">↓</span></div>
+      <div class="faq-a">Hayır. Oyun skoru ve ayarlar gibi veriler yalnızca cihazınızda yerel olarak saklanır. Sunucularımıza herhangi bir kişisel veri gönderilmez.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Neden galeri/kamera izni istiyor?<span class="arrow">↓</span></div>
+      <div class="faq-a">Yılan avatarı ve yem görselini kendi fotoğraflarınla özelleştirebilirsin. Bu özelliği kullanmak istersen izin gerekir; kullanmak istemezsen izni reddedebilirsin, oyun normal çalışmaya devam eder.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Uygulama çöküyor, ne yapmalıyım?<span class="arrow">↓</span></div>
+      <div class="faq-a">Önce uygulamayı kapatıp yeniden açmayı dene. Sorun devam ederse App Store'dan en güncel sürümü yüklediğinden emin ol. Yine de çözülmezse omerfrkml@gmail.com adresine cihaz modeli ve iOS sürümü ile birlikte yazabilirsin.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Android versiyonu var mı?<span class="arrow">↓</span></div>
+      <div class="faq-a">Şu an için Yılans yalnızca iOS için mevcuttur. Android desteği planlar arasında değerlendiriliyor. Güncel kalmak için App Store sayfamızı takip edebilirsin.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Geliştirici kimdir?<span class="arrow">↓</span></div>
+      <div class="faq-a">Yılans, KOF Studio bünyesinde Ömer Faruk Kamil tarafından geliştirilmektedir. Her türlü iletişim için omerfrkml@gmail.com adresine yazabilirsin.</div>
+    </div>
+  </div>
+
+</div><!-- /page-support -->
+
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer>
+  <div>
+    <strong style="color:var(--text)">KOF Studio</strong><br />
+    © 2026 Ömer Faruk Kamil. Tüm hakları saklıdır.
+  </div>
+  <div class="footer-links">
+    <button onclick="showPage('home')" style="background:none;border:none;cursor:pointer;color:var(--tdim);font-size:0.82rem;font-family:var(--f)">Ana Sayfa</button>
+    <button onclick="showPage('privacy')" style="background:none;border:none;cursor:pointer;color:var(--tdim);font-size:0.82rem;font-family:var(--f)">Gizlilik Politikası</button>
+    <button onclick="showPage('support')" style="background:none;border:none;cursor:pointer;color:var(--tdim);font-size:0.82rem;font-family:var(--f)">Destek</button>
+    <a href="/app-ads.txt">app-ads.txt</a>
+  </div>
+</footer>
+
+
+<script>
+/* ── PAGE ROUTER ─────────────────────────── */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links button[id^="nav-"]').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  initObserver();
+}
+
+/* ── SCROLL FADE ─────────────────────────── */
+function initObserver() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in:not(.visible)').forEach(el => obs.observe(el));
+}
+initObserver();
+
+/* ── FAQ ─────────────────────────────────── */
+function toggleFaq(el) {
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+
+/* ── SNAKE DEMO ──────────────────────────── */
+const COLS = 14, ROWS = 14;
+const grid = document.getElementById('snake-grid');
+const cells = [];
+for (let i = 0; i < COLS * ROWS; i++) {
+  const c = document.createElement('div'); c.className = 'cell'; grid.appendChild(c); cells.push(c);
+}
+let snake = [[7,7],[7,6],[7,5],[7,4],[7,3]];
+let dir = [1, 0];
+let food = [4, 10];
+const DIRS = [[1,0],[0,1],[-1,0],[0,-1]];
+function idx(r,c){ return r*COLS+c; }
+function placeFood(){
+  let r,c;
+  do { r=Math.floor(Math.random()*ROWS); c=Math.floor(Math.random()*COLS); }
+  while(snake.some(s=>s[0]===r&&s[1]===c));
+  food=[r,c];
+}
+function autoSteer(){
+  const h=snake[0];
+  const cands=DIRS.filter(([dr,dc])=>{
+    const nr=h[0]+dr,nc=h[1]+dc;
+    return nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!snake.slice(0,-1).some(s=>s[0]===nr&&s[1]===nc);
+  });
+  if(!cands.length) return;
+  cands.sort((a,b)=>{
+    const da=Math.abs(h[0]+a[0]-food[0])+Math.abs(h[1]+a[1]-food[1]);
+    const db=Math.abs(h[0]+b[0]-food[0])+Math.abs(h[1]+b[1]-food[1]);
+    return da-db;
+  });
+  dir=cands[0];
+}
+function step(){
+  autoSteer();
+  const h=snake[0], next=[h[0]+dir[0],h[1]+dir[1]];
+  if(next[0]<0||next[0]>=ROWS||next[1]<0||next[1]>=COLS||snake.slice(0,-1).some(s=>s[0]===next[0]&&s[1]===next[1])){
+    snake=[[Math.floor(ROWS/2),Math.floor(COLS/2)]]; dir=[1,0]; return;
+  }
+  const ate=next[0]===food[0]&&next[1]===food[1];
+  snake.unshift(next); if(!ate) snake.pop(); else placeFood();
+  render();
+}
+function render(){
+  cells.forEach(c=>{ c.className='cell'; });
+  cells[idx(food[0],food[1])].className='cell f';
+  snake.forEach((s,i)=>{ cells[idx(s[0],s[1])].className = i===0 ? 'cell h' : 'cell s'; });
+}
+render();
+setInterval(step, 190);
+</script>
+
+</body>
+</html>
